@@ -1489,8 +1489,22 @@ std::string CGHeroInstance::getHeroTypeName() const
 
 void CGHeroInstance::afterAddToMap(CMap * map)
 {
+	auto existingHero = std::find_if(map->objects.begin(), map->objects.end(), [&](const CGObjectInstance * o) ->bool
+		{
+			return (o->ID == Obj::HERO || o->ID == Obj::PRISON) && o->subID == subID && o != this;
+		});
+
+	if(existingHero != map->objects.end())
+	{
+		logGlobal->error("Hero is already on the map at %s", (*existingHero)->visitablePos().toString());
+
+		throw std::exception("Hero is already on the map");
+	}
+
 	if(ID == Obj::HERO)
+	{		
 		map->heroesOnMap.emplace_back(this);
+	}
 }
 void CGHeroInstance::afterRemoveFromMap(CMap* map)
 {
